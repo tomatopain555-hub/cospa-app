@@ -91,6 +91,10 @@ input:focus, select:focus {
   margin: 4px 0 12px;
 }
 
+.error-message:empty {
+  display: none;
+}
+
 /* フォームのボタンを右寄せ */
 .button-group {
   display: flex;

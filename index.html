@@ -3,24 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>単価計算アプリ</title>
+  <title>コスパ比較（単価計算）アプリ</title>
   <link rel="stylesheet" href="style.css">
   <script src="main.js" defer></script>
 </head>
-
 <body>
-    <!-- 背景のふわふわ猫＆肉球 -->
-  <div class="bg-cats" aria-hidden="true">
-    <span class="float-item">🐾</span>
-    <span class="float-item">🐱</span>
-    <span class="float-item">🐾</span>
-    <span class="float-item">🐾</span>
-    <span class="float-item">🐱</span>
-    <span class="float-item">🐾</span>
-  </div>
+  <!-- 背景のふわふわ猫＆肉球（中身はJSで自動生成） -->
+  <div class="bg-cats" id="bgCats" aria-hidden="true"></div>
 
   <main class="container">
-    <h1>単価計算アプリ</h1>
+    <h1>コスパ比較（単価計算）アプリ</h1>
     <p class="description">価格と内容量を入力すると、単価を自動計算して一番お得な商品を判定します。</p>
 
     <form id="itemForm" class="form-card">
@@ -52,61 +44,85 @@
       <p id="errorMessage" class="error-message"></p>
 
       <div class="button-group">
+        <button type="button" id="resetFormBtn" class="btn-secondary">入力クリア</button>
         <button type="submit" id="addBtn">リストに追加</button>
-        <button type="button" id="clearBtn" class="btn-secondary">すべてクリア</button>
       </div>
     </form>
 
     <section class="result-section">
-      <h2>比較リスト</h2>
+      <div class="section-header">
+        <h2>比較リスト</h2>
+        <button type="button" id="clearListBtn" class="btn-secondary btn-small">リストを全削除</button>
+      </div>
+
+      <div class="save-history-area">
+        <input type="text" id="historyTitle" class="history-title-input" placeholder="タイトル（例：鶏むね肉比較）">
+        <button type="button" id="saveHistoryBtn" class="btn-save">履歴に保存</button>
+      </div>
+
       <p id="emptyMessage" class="empty-message">まだ商品が登録されていません。</p>
       <ul id="itemList" class="item-list"></ul>
     </section>
 
-    <div class="save-history-area">
-        <button type="button" id="saveHistoryBtn" class="btn-save">この比較結果を履歴に保存</button>
-      </div>
-    </section>
-
     <section class="history-section">
-      <div class="history-header">
+      <div class="section-header">
         <h2>過去の比較履歴</h2>
         <button type="button" id="clearHistoryBtn" class="btn-secondary btn-small">履歴を全削除</button>
       </div>
       <p id="emptyHistoryMessage" class="empty-message">保存された履歴はありません。</p>
       <ul id="historyList" class="history-list"></ul>
     </section>
-
   </main>
-  <!-- 右下にひょっこり覗く猫 -->
-  <button type="button" id="peekCat" class="peek-cat" aria-label="猫をなでる" title="クリックしてみて！">
-    <svg viewBox="0 0 120 100" width="90" height="75" xmlns="http://www.w3.org/2000/svg">
-      <!-- 耳 -->
-      <polygon points="20,45 30,10 52,32" fill="#ffffff" stroke="#ec407a" stroke-width="4" stroke-linejoin="round"/>
-      <polygon points="100,45 90,10 68,32" fill="#ffffff" stroke="#ec407a" stroke-width="4" stroke-linejoin="round"/>
-      <polygon points="27,38 33,18 46,32" fill="#ffb6cf"/>
-      <polygon points="93,38 87,18 74,32" fill="#ffb6cf"/>
-      <!-- 顔 -->
-      <ellipse cx="60" cy="65" rx="44" ry="34" fill="#ffffff" stroke="#ec407a" stroke-width="4"/>
-      <!-- 目 -->
-      <circle cx="44" cy="58" r="4.5" fill="#4a333c"/>
-      <circle cx="76" cy="58" r="4.5" fill="#4a333c"/>
-      <circle cx="42.5" cy="56.5" r="1.5" fill="#ffffff"/>
-      <circle cx="74.5" cy="56.5" r="1.5" fill="#ffffff"/>
-      <!-- ほっぺ -->
-      <ellipse cx="33" cy="66" rx="6" ry="3.5" fill="#ffb6cf" opacity="0.7"/>
-      <ellipse cx="87" cy="66" rx="6" ry="3.5" fill="#ffb6cf" opacity="0.7"/>
-      <!-- 鼻と口 -->
-      <polygon points="57,63 63,63 60,67" fill="#ec407a"/>
-      <path d="M 52 70 Q 56 75 60 69 Q 64 75 68 70" fill="none" stroke="#4a333c" stroke-width="2.5" stroke-linecap="round"/>
-      <!-- ひげ -->
-      <line x1="16" y1="60" x2="28" y2="62" stroke="#ec407a" stroke-width="2" stroke-linecap="round"/>
-      <line x1="15" y1="68" x2="28" y2="68" stroke="#ec407a" stroke-width="2" stroke-linecap="round"/>
-      <line x1="104" y1="60" x2="92" y2="62" stroke="#ec407a" stroke-width="2" stroke-linecap="round"/>
-      <line x1="105" y1="68" x2="92" y2="68" stroke="#ec407a" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </button>
-</body>
-</body>
 
+  <!-- 右下にひょっこり覗く猫 -->
+  <div class="cat-wrapper">
+    <div id="catSpeech" class="cat-speech"></div>
+    <button type="button" id="peekCat" class="peek-cat" aria-label="猫をなでる" title="クリックしてみて！">
+      <svg viewBox="0 0 120 100" width="90" height="75" xmlns="http://www.w3.org/2000/svg">
+        <!-- 耳 -->
+        <polygon points="20,45 30,10 52,32" fill="#ffffff" stroke="#ec407a" stroke-width="4" stroke-linejoin="round"/>
+        <polygon points="100,45 90,10 68,32" fill="#ffffff" stroke="#ec407a" stroke-width="4" stroke-linejoin="round"/>
+        <polygon points="27,38 33,18 46,32" fill="#ffb6cf"/>
+        <polygon points="93,38 87,18 74,32" fill="#ffb6cf"/>
+        <!-- 顔 -->
+        <ellipse cx="60" cy="65" rx="44" ry="34" fill="#ffffff" stroke="#ec407a" stroke-width="4"/>
+        <!-- ほっぺ -->
+        <ellipse cx="33" cy="66" rx="6" ry="3.5" fill="#ffb6cf" opacity="0.7"/>
+        <ellipse cx="87" cy="66" rx="6" ry="3.5" fill="#ffb6cf" opacity="0.7"/>
+        <!-- 表情：通常 -->
+        <g id="faceNormal">
+          <circle cx="44" cy="58" r="4.5" fill="#4a333c"/>
+          <circle cx="76" cy="58" r="4.5" fill="#4a333c"/>
+          <circle cx="42.5" cy="56.5" r="1.5" fill="#ffffff"/>
+          <circle cx="74.5" cy="56.5" r="1.5" fill="#ffffff"/>
+        </g>
+        <!-- 表情：にっこり -->
+        <g id="faceHappy" style="display:none;">
+          <path d="M 38 59 Q 44 52 50 59" fill="none" stroke="#4a333c" stroke-width="3" stroke-linecap="round"/>
+          <path d="M 70 59 Q 76 52 82 59" fill="none" stroke="#4a333c" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <!-- 表情：ハート目 -->
+        <g id="faceLove" style="display:none;">
+          <path d="M 44 63 C 38 58 38 53 41.5 53 C 43 53 44 54.5 44 55.5 C 44 54.5 45 53 46.5 53 C 50 53 50 58 44 63 Z" fill="#ec407a"/>
+          <path d="M 76 63 C 70 58 70 53 73.5 53 C 75 53 76 54.5 76 55.5 C 76 54.5 77 53 78.5 53 C 82 53 82 58 76 63 Z" fill="#ec407a"/>
+        </g>
+        <!-- 表情：びっくり -->
+        <g id="faceSurprised" style="display:none;">
+          <circle cx="44" cy="58" r="6" fill="#ffffff" stroke="#4a333c" stroke-width="2.5"/>
+          <circle cx="44" cy="58" r="2" fill="#4a333c"/>
+          <circle cx="76" cy="58" r="6" fill="#ffffff" stroke="#4a333c" stroke-width="2.5"/>
+          <circle cx="76" cy="58" r="2" fill="#4a333c"/>
+        </g>
+        <!-- 鼻と口 -->
+        <polygon points="57,63 63,63 60,67" fill="#ec407a"/>
+        <path d="M 52 70 Q 56 75 60 69 Q 64 75 68 70" fill="none" stroke="#4a333c" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- ひげ -->
+        <line x1="16" y1="60" x2="28" y2="62" stroke="#ec407a" stroke-width="2" stroke-linecap="round"/>
+        <line x1="15" y1="68" x2="28" y2="68" stroke="#ec407a" stroke-width="2" stroke-linecap="round"/>
+        <line x1="104" y1="60" x2="92" y2="62" stroke="#ec407a" stroke-width="2" stroke-linecap="round"/>
+        <line x1="105" y1="68" x2="92" y2="68" stroke="#ec407a" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+</body>
 </html>

@@ -7,16 +7,18 @@ html {
 
 body {
   margin: 0;
-  padding: 28px 16px;
+  padding: 28px 16px 80px;
 }
 
 .container {
   max-width: 700px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 h1 {
-  font-size: 1.6rem;
+  font-size: 1.55rem;
   margin-bottom: 6px;
   color: #d81b60;
 }
@@ -24,6 +26,7 @@ h1 {
 h2 {
   font-size: 1.2rem;
   color: #222222;
+  margin: 0;
 }
 
 .description {
@@ -46,6 +49,7 @@ h2 {
   flex-direction: column;
   margin-bottom: 14px;
   flex: 1;
+  min-width: 0;
 }
 
 .form-row {
@@ -69,6 +73,8 @@ input, select {
   background-color: #ffffff;
   color: #222222;
   outline: none;
+  width: 100%;
+  box-sizing: border-box;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -85,13 +91,16 @@ input:focus, select:focus {
   margin: 4px 0 12px;
 }
 
+/* フォームのボタンを右寄せ */
 .button-group {
   display: flex;
+  justify-content: flex-end;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 button {
-  padding: 10px 20px;
+  padding: 10px 18px;
   font-size: 0.9rem;
   border: none;
   border-radius: 10px;
@@ -99,6 +108,7 @@ button {
   background-color: #ec407a;
   color: #ffffff;
   font-weight: bold;
+  white-space: nowrap; /* スマホで文字が変に改行されないようにする */
   transition: opacity 0.2s, transform 0.15s;
 }
 
@@ -111,10 +121,22 @@ button:active {
   transform: scale(0.97);
 }
 
-.btn-secondary,
-#clearBtn {
+.btn-secondary {
   background-color: #f8bbd0;
   color: #880e4f;
+}
+
+.btn-small {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .empty-message {
@@ -131,7 +153,6 @@ button:active {
   gap: 12px;
 }
 
-/* カード追加時のふわっと出るアニメーション */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -145,13 +166,14 @@ button:active {
 
 .item-card {
   background-color: #ffffff;
-  padding: 16px 20px;
+  padding: 16px 18px;
   border-radius: 14px;
   border: 1.5px solid #f8d0df;
   box-shadow: 0 2px 8px rgba(216, 74, 126, 0.06);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   animation: fadeInUp 0.25s ease-out;
   transition: transform 0.2s, box-shadow 0.2s, opacity 0.25s;
 }
@@ -161,7 +183,6 @@ button:active {
   box-shadow: 0 6px 14px rgba(216, 74, 126, 0.12);
 }
 
-/* 削除時に右へスッと消える演出 */
 .removing {
   opacity: 0 !important;
   transform: translateX(40px) !important;
@@ -173,10 +194,16 @@ button:active {
   box-shadow: 0 4px 12px rgba(236, 64, 122, 0.18);
 }
 
+.item-info {
+  min-width: 0;
+  flex: 1;
+}
+
 .item-info h3 {
   margin: 0 0 4px;
   font-size: 1.05rem;
   color: #222222;
+  word-break: break-word;
 }
 
 .item-meta {
@@ -188,11 +215,12 @@ button:active {
 .item-right {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .unit-price {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: bold;
   text-align: right;
   color: #222222;
@@ -209,8 +237,9 @@ button:active {
   font-size: 0.72rem;
   padding: 3px 10px;
   border-radius: 999px;
-  margin-left: 8px;
+  margin-left: 6px;
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .delete-btn {
@@ -221,35 +250,40 @@ button:active {
   border-radius: 8px;
 }
 
+.load-btn {
+  background-color: #f06292;
+  color: #ffffff;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+}
+
+/* 履歴保存エリア（タイトル入力＋保存ボタン） */
 .save-history-area {
-  margin-top: 16px;
-  text-align: right;
+  background-color: #ffffff;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #ffd1e2;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.history-title-input {
+  flex: 1;
+  max-width: none;
 }
 
 .btn-save {
   background-color: #d81b60;
+  flex-shrink: 0;
 }
 
 .history-section {
   margin-top: 36px;
   padding-top: 22px;
   border-top: 2px dashed #f5c6d8;
-}
-
-.history-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-}
-
-.history-header h2 {
-  margin: 0;
-}
-
-.btn-small {
-  padding: 6px 14px;
-  font-size: 0.8rem;
 }
 
 .history-list {
@@ -263,7 +297,7 @@ button:active {
 
 .history-card {
   background-color: #ffffff;
-  padding: 16px 20px;
+  padding: 16px 18px;
   border-radius: 14px;
   border: 1.5px solid #f8d0df;
   box-shadow: 0 2px 8px rgba(216, 74, 126, 0.06);
@@ -274,10 +308,27 @@ button:active {
 .history-top {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  font-size: 0.85rem;
-  color: #555555;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.history-title {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #d81b60;
+  margin: 0 0 2px;
+}
+
+.history-date {
+  font-size: 0.8rem;
+  color: #666666;
+}
+
+.history-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .history-items {
@@ -291,12 +342,6 @@ button:active {
 .history-items li.best-text {
   color: #c2185b;
   font-weight: bold;
-}
-
-/* コンテンツを背景アニメーションより前面に出す */
-.container {
-  position: relative;
-  z-index: 1;
 }
 
 /* 背景のふわふわ浮かぶ猫＆肉球 */
@@ -319,13 +364,6 @@ button:active {
   animation: floatUp 14s linear infinite;
 }
 
-.float-item:nth-child(1) { left: 8%;  animation-duration: 13s; animation-delay: 0s;  font-size: 1.8rem; }
-.float-item:nth-child(2) { left: 24%; animation-duration: 17s; animation-delay: 3s;  font-size: 2.4rem; }
-.float-item:nth-child(3) { left: 45%; animation-duration: 14s; animation-delay: 6s;  font-size: 1.6rem; }
-.float-item:nth-child(4) { left: 68%; animation-duration: 16s; animation-delay: 1s;  font-size: 2.1rem; }
-.float-item:nth-child(5) { left: 84%; animation-duration: 15s; animation-delay: 4s;  font-size: 2.5rem; }
-.float-item:nth-child(6) { left: 93%; animation-duration: 12s; animation-delay: 8s;  font-size: 1.7rem; }
-
 @keyframes floatUp {
   0% {
     transform: translateY(0) rotate(0deg);
@@ -343,22 +381,53 @@ button:active {
   }
 }
 
-/* 右下のひょっこり猫 */
-.peek-cat {
+/* 右下のひょっこり猫＋吹き出し */
+.cat-wrapper {
   position: fixed;
-  bottom: -24px;
-  right: 20px;
+  bottom: 0;
+  right: 16px;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.cat-speech {
+  background-color: #ffffff;
+  color: #d81b60;
+  border: 2px solid #f48fb1;
+  border-radius: 14px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 6px;
+  box-shadow: 0 3px 10px rgba(216, 74, 126, 0.15);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s, transform 0.2s;
+  white-space: nowrap;
+}
+
+.cat-speech.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.peek-cat {
+  pointer-events: auto;
   background: transparent;
   padding: 0;
   border: none;
   cursor: pointer;
-  transition: bottom 0.25s ease, transform 0.2s ease;
+  margin-bottom: -24px;
+  transition: margin-bottom 0.25s ease, transform 0.2s ease;
 }
 
 .peek-cat:hover {
-  bottom: -4px;
+  margin-bottom: -4px;
   opacity: 1;
+  transform: none;
 }
 
 .peek-cat.jump {
@@ -369,4 +438,56 @@ button:active {
   0%   { transform: translateY(0); }
   50%  { transform: translateY(-18px) rotate(-5deg); }
   100% { transform: translateY(0); }
+}
+
+/* スマホ表示の最適化 */
+@media (max-width: 600px) {
+  body {
+    padding: 18px 12px 90px;
+  }
+
+  h1 {
+    font-size: 1.35rem;
+  }
+
+  .form-card {
+    padding: 16px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .item-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .item-right {
+    justify-content: space-between;
+    border-top: 1px dashed #f5c6d8;
+    padding-top: 10px;
+  }
+
+  .unit-price {
+    text-align: left;
+  }
+
+  .save-history-area {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .history-title-input {
+    max-width: none;
+  }
+
+  .history-top {
+    flex-direction: column;
+  }
+
+  .history-actions {
+    align-self: flex-end;
+  }
 }

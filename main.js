@@ -7,9 +7,11 @@ const unitBaseSelect = document.getElementById('unitBase');
 const errorMessage = document.getElementById('errorMessage');
 const emptyMessage = document.getElementById('emptyMessage');
 const itemList = document.getElementById('itemList');
-const clearBtn = document.getElementById('clearBtn');
+const resetFormBtn = document.getElementById('resetFormBtn');
+const clearListBtn = document.getElementById('clearListBtn');
 
 // 履歴用のDOM要素
+const historyTitleInput = document.getElementById('historyTitle');
 const saveHistoryBtn = document.getElementById('saveHistoryBtn');
 const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 const emptyHistoryMessage = document.getElementById('emptyHistoryMessage');
@@ -22,10 +24,37 @@ let items = [];
 let itemCounter = 1;
 let histories = loadHistories();
 
-// 初回読み込み時に履歴を表示
+// 初期化
+createBgCats();
 renderHistories();
 
-// フォーム送信時の処理
+// 背景のふわふわ猫＆肉球を生成
+function createBgCats() {
+  const bgCats = document.getElementById('bgCats');
+  if (!bgCats) return;
+
+  const configs = [
+    { icon: '🐾', left: '8%',  dur: '13s', delay: '0s', size: '1.8rem' },
+    { icon: '🐱', left: '24%', dur: '17s', delay: '3s', size: '2.4rem' },
+    { icon: '🐾', left: '45%', dur: '14s', delay: '6s', size: '1.6rem' },
+    { icon: '🐾', left: '68%', dur: '16s', delay: '1s', size: '2.1rem' },
+    { icon: '🐱', left: '84%', dur: '15s', delay: '4s', size: '2.5rem' },
+    { icon: '🐾', left: '93%', dur: '12s', delay: '8s', size: '1.7rem' }
+  ];
+
+  configs.forEach(c => {
+    const span = document.createElement('span');
+    span.className = 'float-item';
+    span.textContent = c.icon;
+    span.style.left = c.left;
+    span.style.animationDuration = c.dur;
+    span.style.animationDelay = c.delay;
+    span.style.fontSize = c.size;
+    bgCats.appendChild(span);
+  });
+}
+
+// フォーム送信時の処理（リストに追加）
 itemForm.addEventListener('submit', function (e) {
   e.preventDefault();
 
@@ -63,11 +92,21 @@ itemForm.addEventListener('submit', function (e) {
   playAddSound();
 });
 
-// 比較リストをすべてクリア
-clearBtn.addEventListener('click', function () {
+// 入力クリア（フォームの中身だけ消す）
+resetFormBtn.addEventListener('click', function () {
+  itemNameInput.value = '';
+  itemPriceInput.value = '';
+  itemAmountInput.value = '';
+  errorMessage.textContent = '';
+  itemNameInput.focus();
+  playDeleteSound();
+});
+
+// 比較リストを全削除
+clearListBtn.addEventListener('click', function () {
   if (items.length === 0) return;
 
-  if (confirm('比較リストをすべてクリアします。本当によろしいですか？')) {
+  if (confirm('比較リストをすべて削除します。本当によろしいですか？')) {
     playClearSound();
     items = [];
     itemCounter = 1;
@@ -76,7 +115,7 @@ clearBtn.addEventListener('click', function () {
   }
 });
 
-// 履歴に保存ボタンの処理
+// 履歴に保存（タイトル付き）
 saveHistoryBtn.addEventListener('click', function () {
   if (items.length === 0) {
     errorMessage.textContent = '履歴に保存する商品を1つ以上追加してください。';
@@ -85,19 +124,21 @@ saveHistoryBtn.addEventListener('click', function () {
 
   errorMessage.textContent = '';
 
+  const title = historyTitleInput.value.trim() || '無題の比較';
   const now = new Date();
   const dateStr = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
   const minUnitPrice = Math.min(...items.map(item => item.unitPrice));
 
   const newRecord = {
     id: Date.now(),
+    title: title,
     date: dateStr,
     minUnitPrice: minUnitPrice,
-    items: items.slice()
+    items: items.map(item => ({ ...item }))
   };
 
   histories.unshift(newRecord);
+  historyTitleInput.value = '';
   saveHistories();
   renderHistories();
   playSaveSound();
@@ -187,16 +228,38 @@ function renderHistories() {
       return `<li${cls}>${escapeHtml(item.name)}：${item.unitPrice.toFixed(2)}円（${baseLabel}） / ${item.price}円・${item.amount}${bestMark}</li>`;
     }).join('');
 
+    const displayTitle = record.title ? escapeHtml(record.title) : '無題の比較';
+
     li.innerHTML = `
       <div class="history-top">
-        <span>保存日時：${record.date}</span>
-        <button type="button" class="delete-btn">削除</button>
+        <div>
+          <p class="history-title">${displayTitle}</p>
+          <span class="history-date">保存日時：${record.date}</span>
+        </div>
+        <div class="history-actions">
+          <button type="button" class="delete-btn">削除</button>
+          <button type="button" class="load-btn">編集</button>
+        </div>
       </div>
       <ul class="history-items">
         ${itemsHtml}
       </ul>
     `;
 
+    // 履歴を比較リストに読み込んで再利用
+    li.querySelector('.load-btn').addEventListener('click', function () {
+      items = record.items.map((item, idx) => ({
+        ...item,
+        id: Date.now() + idx
+      }));
+      itemCounter = items.length + 1;
+      historyTitleInput.value = record.title || '';
+      renderList();
+      playSaveSound();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // 履歴の個別削除
     li.querySelector('.delete-btn').addEventListener('click', function () {
       playDeleteSound();
       li.classList.add('removing');
@@ -224,7 +287,7 @@ function loadHistories() {
 
 // XSS対策
 function escapeHtml(str) {
-  return str
+  return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -257,34 +320,60 @@ function playTone(freqs, duration = 0.08, type = 'sine', volume = 0.15) {
   osc.stop(now + totalTime);
 }
 
-// リストに追加（ミ→シ）
 function playAddSound() {
   playTone([659.25, 987.77]);
 }
 
-// 履歴に保存（ド→ミ→ソ）
 function playSaveSound() {
   playTone([523.25, 659.25, 783.99], 0.07);
 }
 
-// 個別削除（シ→ミ）
 function playDeleteSound() {
   playTone([987.77, 659.25], 0.06, 'sine', 0.12);
 }
 
-// すべてクリア・履歴全削除（低めのソ→ド）
 function playClearSound() {
   playTone([392.00, 261.63], 0.09, 'triangle', 0.15);
 }
 
-// 右下の猫をクリックしたときのアクション
+// 右下の猫：クリックで表情チェンジ＋吹き出し＋鳴き声
 const peekCat = document.getElementById('peekCat');
+const catSpeech = document.getElementById('catSpeech');
+const catFaces = ['faceNormal', 'faceHappy', 'faceLove', 'faceSurprised'];
+const catMessages = [
+  'にゃー♪',
+  'おトクみつけた！',
+  '節約えらいにゃ！',
+  'なでてくれてありがとう♥',
+  '安い方えらぼ〜！'
+];
+let currentFaceIndex = 0;
+let speechTimer = null;
+
 if (peekCat) {
   peekCat.addEventListener('click', function () {
     playMeowSound();
+
+    // 表情を順番に切り替え
+    document.getElementById(catFaces[currentFaceIndex]).style.display = 'none';
+    currentFaceIndex = (currentFaceIndex + 1) % catFaces.length;
+    document.getElementById(catFaces[currentFaceIndex]).style.display = 'block';
+
+    // ジャンプアニメーション
     peekCat.classList.remove('jump');
-    void peekCat.offsetWidth; // アニメーションを毎回再生させる
+    void peekCat.offsetWidth;
     peekCat.classList.add('jump');
+
+    // ランダムな吹き出しを表示（2秒後に消える）
+    if (catSpeech) {
+      const msg = catMessages[Math.floor(Math.random() * catMessages.length)];
+      catSpeech.textContent = msg;
+      catSpeech.classList.add('show');
+      clearTimeout(speechTimer);
+      speechTimer = setTimeout(() => {
+        catSpeech.classList.remove('show');
+      }, 2000);
+    }
   });
 }
 
